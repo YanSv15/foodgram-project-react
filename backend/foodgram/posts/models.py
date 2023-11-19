@@ -155,12 +155,14 @@ class ShoppingCard(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        related_name = 'shopping_cart',
     )
 
     class Meta:
@@ -171,7 +173,7 @@ class ShoppingCard(models.Model):
                 f'список покупок рецепт {self.recipe}.')
 
 
-class Follow(models.Model):
+class Subscribe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -189,6 +191,7 @@ class Follow(models.Model):
         ordering = ['-id']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+
 
     def __str__(self):
         return f'Пользователь {self.user} подписан на автора {self.author}.'

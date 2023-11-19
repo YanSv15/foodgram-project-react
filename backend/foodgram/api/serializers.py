@@ -3,13 +3,20 @@ from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
 
 from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
-                          Favorite, ShoppingCard, TagRecipe, Follow)
+                          Favorite, ShoppingCard, Subscribe)
 from users.models import User
 from posts import validators
 
 from django.core.files.base import ContentFile
 import base64
+from djoser.serializers import UserCreateSerializer as DjoserUserCreateSerializer
+from django.contrib.auth import get_user_model
 
+class UserCreateSerializer(DjoserUserCreateSerializer):
+    class Meta(DjoserUserCreateSerializer.Meta):
+        model = get_user_model()
+        fields = ('id', 'email', 'username', 'password', 'first_name', 'last_name',)
+    
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
@@ -25,9 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            'id',
             'email',
             'username',
-        )
+            'first_name',
+            'last_name',        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -117,7 +126,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
         recipe.ingredients.set(ingredients_data)
-        recipe.image.save(image_data.name, ContentFile(base64.b64decode(image_content)))
+        recipe.image.save(image_data.name, ContentFile(
+                          base64.b64decode(image_content)))
         return recipe
 
     def update(self, instance, validated_data):
@@ -125,52 +135,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags_data = validated_data.pop('tags')
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+        instance.cooking_time = validated_data.get(
+             'cooking_time', instance.cooking_time)
         instance.image = validated_data.get('image', instance.image)
         instance.tags.set(tags_data)
         instance.ingredients.set(ingredients_data)
         instance.save()
         return instance
 
-        # for ingredient_data in ingredients_data:
-            # ingredient, created = Ingredient.objects.get_or_create(id=ingredient_data['id'])
-            # instance.ingredients.add(ingredient)
 
-        # for tag_data in tags_data:
-            # tag, created = Tag.objects.get_or_create(id=tag_data['id'])
-            # instance.tags.add(tag)
-
-
-    # def create(self, validated_data):
-        # if 'ingredients' not in self.initial_data:
-            # recipe = Recipe.objects.create(**validated_data)
-            # return recipe
-        # ingredients = validated_data.pop('ingredients')
-        # recipe = Recipe.objects.create(**validated_data)
-        # for ingredient in ingredients:
-            # current_ingredient, status = Ingredient.objects.get_or_create(
-                # **ingredient
-            # )
-            # IngredientsRecipe.objects.create(
-                # ingredient=current_ingredient, recipe=recipe
-            # )
-        # return recipe
-        # image = validated_data.pop('image')
-        # ingredients = validated_data.pop('ingredients')
-        # tags = validated_data.pop('tags')
-        # recipe = Recipe.objects.create(**validated_data)
-        # recipe.tags.set(tags)
-        # for tag in tags:
-            # TagRecipe.objects.create(tag=tag, recipe=recipe)
-        # for ingredient in ingredients:
-            # IngredientsRecipe.objects.create(ingredient=ingredient, recipe=recipe)
-        # return recipe
-
-        # self.create_ingredients(ingredients_data, recipe)
-        # return recipe
-
-
-class FollowSerializer(serializers.ModelSerializer):
+class SubscribeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(
         source='author.id'
     )
@@ -189,12 +163,20 @@ class FollowSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = Follow
+        model = Subscribe
         fields = ('id', 'email', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
+
+
+class SubscribeCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscribe
+        fields = ('author', )
+
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
@@ -212,25 +194,19 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         source='recipe.cooking_time',
     )
 
+
     class Meta:
         model = ShoppingCard
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class FavoriteRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(
-        source='favorite_recipe.id',
-    )
-    name = serializers.ReadOnlyField(
-        source='favorite_recipe.name',
-    )
+class FavoriteSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+    name = serializers.ReadOnlyField()
     image = serializers.CharField(
-        source='favorite_recipe.image',
         read_only=True,
     )
-    cooking_time = serializers.ReadOnlyField(
-        source='favorite_recipe.cooking_time',
-    )
+    cooking_time = serializers.ReadOnlyField()
 
     class Meta:
         model = Favorite

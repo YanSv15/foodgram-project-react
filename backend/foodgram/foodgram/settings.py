@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     # ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -117,6 +117,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',)
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -143,3 +145,28 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+
+DJOSER = {
+     'LOGIN_FIELD': 'email',
+    # ...
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+        'current_user': 'api.serializers.UserSerializer',
+        'user': 'api.serializers.UserSerializer',
+
+    },
+    # ...
+    'PASSWORD_RESET_CONFIRM_URL': 'auth/reset_password_confirm/?uid={uid}&token={token}',
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+}
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = False
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'oqdevpy@gmail.com'
+EMAIL_HOST_PASSWORD = 'hammwscsldkaimmz'
