@@ -6,9 +6,13 @@ from .models import (Ingredient, Recipe, Tag,
 
 admin.site.register(Tag)
 admin.site.register(Ingredient)
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'author', 'name', 'image', 'text',)
+
+
 admin.site.register(Favorite)
 admin.site.register(IngredientsRecipe)
 admin.site.register(ShoppingCard)

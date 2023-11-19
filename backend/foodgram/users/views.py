@@ -1,16 +1,20 @@
-from rest_framework import viewsets
 from django.contrib.auth import get_user_model
-from djoser import views
-from users import serializers
-# import actions
-from rest_framework.decorators import action
-from api.serializers import UserCreateSerializer, UserSerializer
-from djoser import utils
-from rest_framework import status
-from rest_framework.response import Response
-from djoser.conf import settings
 from django.utils.timezone import now
-from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from djoser import views
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny  # IsAuthenticated
+from rest_framework.response import Response
+
+# from users import serializers
+# import actions
+# from djoser import utils
+# from djoser.conf import settings
+
+from api.serializers import UserCreateSerializer  # UserSerializer
+
 
 User = get_user_model()
 
@@ -30,13 +34,10 @@ class AuthViewSet(views.UserViewSet):
 
     permission_classes = [AllowAny]
 
-
     def get_permissions(self):
         if self.action == 'login':
             return [AllowAny()]
-        
         return super().get_permissions()
-
 
     def get_serializer_class(self):
         if self.action == 'register':
@@ -49,7 +50,6 @@ class AuthViewSet(views.UserViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(is_active=True)
         data = serializer.data
-      
         return Response(
             data=data, status=status.HTTP_200_OK
         )
@@ -62,14 +62,4 @@ class AuthViewSet(views.UserViewSet):
         if hasattr(serializer.user, "last_login"):
             serializer.user.last_login = now()
         serializer.user.save()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # @action(["get"], detail=True,pk=None, permission_classes=[IsAuthenticated],)
-    # def detail(self, request, *args, **kwargs):
-    #     print(11111111)
-    #     # user = self.get_object()
-    #     # serializer = UserSerializer(user,many = True)
-    #     return Response("daa")
-    
-

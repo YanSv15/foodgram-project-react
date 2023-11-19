@@ -23,7 +23,7 @@ router.register('', AuthViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/',include(router.urls)),
+    path('api/users/', include(router.urls)),
     path('api/', include('api.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
 ]

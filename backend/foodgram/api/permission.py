@@ -16,4 +16,3 @@ class AuthorOrReadOnly(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS
             or request.user == obj.author
         )
-

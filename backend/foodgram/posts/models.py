@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+
 
 from posts import validators
 
@@ -134,7 +135,7 @@ class IngredientsRecipe(models.Model):
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
 
-   # def __str__(self):
+    # def __str__(self):
         # return self.ingredients
 
 
@@ -162,7 +163,7 @@ class ShoppingCard(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        related_name = 'shopping_cart',
+        related_name='shopping_cart',
     )
 
     class Meta:
@@ -191,7 +192,6 @@ class Subscribe(models.Model):
         ordering = ['-id']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-
 
     def __str__(self):
         return f'Пользователь {self.user} подписан на автора {self.author}.'
