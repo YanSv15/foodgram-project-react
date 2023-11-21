@@ -30,10 +30,10 @@ jobs:
         pip install -r ./backend/foodgram/requirements.txt
     # - name: Test with flake8
       # run: |
-        # python -m flake8 backend/foodgram/
+        #python -m flake8 backend/foodgram/
 
   build_and_push_to_docker_hub:
-    name: Push Docker image to DockerHub
+    name: Push backend Docker image to DockerHub
     runs-on: ubuntu-latest
     needs: tests
     steps:
@@ -49,7 +49,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./backend/
+          context: ./backend/foodgram/
           push: true
           tags: svirixson/foodgram_backend:latest
 
