@@ -59,54 +59,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return serializers.RecipeWriteSerializer
 
 
-class SubscribeViewSet(CreateDestroyViewSet):
-    serializer_class = serializers.SubscribeSerializer
-
-    def get_queryset(self):
-        return self.request.user.follower.all()
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['author_id'] = self.kwargs.get('user_id')
-        return context
-
-    def perform_create(self, serializer):
-        serializer.save(
-            user=self.request.user,
-            author=get_object_or_404(
-                User,
-                id=self.kwargs.get('user_id')
-            )
-        )
-
-    @action(methods=('delete',), detail=True)
-    def delete(self, request, user_id):
-        get_object_or_404(User, id=user_id)
-        if not Subscribe.objects.filter(
-                user=request.user, author_id=user_id).exists():
-            return Response({'errors': 'Вы не были подписаны на автора'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        get_object_or_404(
-            Subscribe,
-            user=request.user,
-            author_id=user_id
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SubscribeCreateSerializer
 
     def perform_create(self, serializer):
         user_id = self.kwargs.get('user_id')
-
-        # Check if the subscription already exists
         if Subscribe.objects.filter(user=self.request.user,
                                     author_id=user_id).exists():
             return Response({'errors': 'Вы уже подписаны на автора'},
                             status=status.HTTP_400_BAD_REQUEST)
-
-        # Create the subscription
         author = get_object_or_404(User, id=user_id)
         serializer.save(user=self.request.user, author=author)
         return Response(status=status.HTTP_201_CREATED)
@@ -118,7 +79,6 @@ class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
                                         author_id=user_id).exists():
             return Response({'errors': 'Вы не были подписаны на автора'},
                             status=status.HTTP_400_BAD_REQUEST)
-
         get_object_or_404(
             Subscribe,
             user=request.user,

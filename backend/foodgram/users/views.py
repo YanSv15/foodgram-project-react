@@ -26,10 +26,6 @@ class UserViewSet(viewsets.ModelViewSet):
         pass
 
 
-class FollowViewSet(viewsets.ModelViewSet):
-    pass
-
-
 class AuthViewSet(views.UserViewSet):
 
     permission_classes = [AllowAny]
