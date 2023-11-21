@@ -69,7 +69,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./frontend/
+          context: frontend/
           push: true
           tags: svirixson/foodgram_frontend:latest
 
