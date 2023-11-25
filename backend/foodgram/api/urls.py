@@ -22,7 +22,7 @@ router.register(
     basename='shoppingcart')
 router.register('users', UserViewSet, basename='users')
 
-router.register('recipe/(?P<user_id>\d+)/recipe',
+router.register(r'recipe/(?P<user_id>\d+)/recipe',
                 SubcribeCreateDeleteViewSet, basename='recipe-create')
 
 
