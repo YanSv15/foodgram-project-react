@@ -158,15 +158,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 DJOSER = {
-     'LOGIN_FIELD': 'email',
-    # ...
+    'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
         'user_create': 'api.serializers.UserCreateSerializer',
         'current_user': 'api.serializers.UserSerializer',
         'user': 'api.serializers.UserSerializer',
 
     },
-    # ...
     'PASSWORD_RESET_CONFIRM_URL': 'auth/reset_password_confirm/?uid={uid}&token={token}',
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
 }
