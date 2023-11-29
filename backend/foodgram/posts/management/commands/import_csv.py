@@ -22,4 +22,4 @@ class Command(BaseCommand):
                 name=row[0],
                 measurement_unit=row[1]
             )
-        print('ingredients - OK')
+        print(f'ingredients - OK')

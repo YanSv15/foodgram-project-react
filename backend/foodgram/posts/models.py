@@ -1,6 +1,7 @@
+from colorfield.fields import ColorField
+
 from django.contrib.auth import get_user_model
 from django.db import models
-
 
 from posts import validators
 
@@ -14,10 +15,7 @@ class Tag(models.Model):
         verbose_name="Название тега",
         validators=(validators.validate_username, ),
     )
-    color = models.CharField(
-        max_length=7,
-        verbose_name="Цвет",
-    )
+    color = ColorField()
     slug = models.SlugField(
         max_length=200,
         unique=True,
@@ -80,7 +78,7 @@ class Recipe(models.Model):
         verbose_name='Описание',
         max_length=500,
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления (в минутах)'
     )
 
@@ -89,7 +87,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return (self.name)
+        return self.name
 
 
 class Favorite(models.Model):
