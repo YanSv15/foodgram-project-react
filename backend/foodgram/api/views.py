@@ -68,22 +68,17 @@ class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
                                     author_id=user_id).exists():
             return Response({'errors': 'Вы уже подписаны на автора'},
                             status=status.HTTP_400_BAD_REQUEST)
-        author = get_object_or_404(User, id=user_id)
-        serializer.save(user=self.request.user, author=author)
+        serializer.save(user=self.request.user, author_id=user_id)
         return Response(status=status.HTTP_201_CREATED)
 
     @action(methods=('delete',), detail=True)
-    def delete(self, request, user_id):
-        # Use user_id from the URL
-        if not Subscribe.objects.filter(user=request.user,
-                                        author_id=user_id).exists():
-            return Response({'errors': 'Вы не были подписаны на автора'},
+    def delete(self, request, author_id):
+        deleted_count, _ = Subscribe.objects.filter(user=request.user,
+                                                    author_id=author_id
+                                                    ).delete()
+        if deleted_count == 0:
+            return Response({'errors': 'Вы не были подписаны на этого автора'},
                             status=status.HTTP_400_BAD_REQUEST)
-        get_object_or_404(
-            Subscribe,
-            user=request.user,
-            author_id=user_id
-        ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -117,13 +112,11 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
     @action(methods=('delete',), detail=True)
     def delete(self, request, recipe_id):
         user = request.user
-        if not user.shopping_cart.filter(recipe_id=recipe_id).exists():
+        shopping_cards = user.shopping_cart.filter(recipe_id=recipe_id)
+        if not shopping_cards.exists():
             return Response({'errors': 'Рецепта нет в корзине'},
                             status=status.HTTP_400_BAD_REQUEST)
-        shopping_cards = user.shopping_cart.filter(recipe_id=recipe_id)
-        for shopping_card in shopping_cards:
-            shopping_card.delete()
-
+        shopping_cards.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -159,14 +152,10 @@ class FavoriteViewSet(CreateDestroyViewSet):
     def delete(self, request, recipe_id):
         user = request.user
         favorites = user.favorites.filter(recipe_id=recipe_id)
-
         if not favorites.exists():
             return Response({'errors': 'Рецепт не в избранном'},
                             status=status.HTTP_400_BAD_REQUEST)
-
-        for favorite in favorites:
-            favorite.delete()
-
+        favorites.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

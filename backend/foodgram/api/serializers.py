@@ -1,17 +1,18 @@
 import base64
 
 from django.core.files.base import ContentFile
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
-                          Favorite, ShoppingCard, Subscribe)
-
-from posts import validators
-from users.models import User
 from djoser.serializers import (UserCreateSerializer
                                 as DjoserUserCreateSerializer)
-from django.contrib.auth import get_user_model
+
+from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
+                          Favorite, ShoppingCard, Subscribe)
+from posts import validators
+
+from users.models import User
 
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
@@ -64,12 +65,9 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-    )
-    measurement_unit = serializers.CharField(
-    )
-    name = serializers.CharField(
-    )
+    id = serializers.IntegerField()
+    measurement_unit = serializers.CharField()
+    name = serializers.CharField()
 
     class Meta:
         model = IngredientsRecipe
@@ -98,23 +96,23 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         model = Recipe
 
     def get_is_favorited(self, obj):
-        username = self.context['request'].user
-        if not username.is_authenticated:
+        user = self.context['request'].user
+        if not user.is_authenticated:
             return False
-        user = get_object_or_404(User, username=username)
-        return Favorite.objects.filter(user=user, recipe=obj).exists()
+        user_object = get_object_or_404(User, username=user)
+        return Favorite.objects.filter(user=user_object, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        username = self.context['request'].user
-        if not username.is_authenticated:
+        user = self.context['request'].user
+        if not user.is_authenticated:
             return False
-        user = get_object_or_404(User, username=username)
-        return ShoppingCard.objects.filter(user=user, recipe=obj).exists()
+        user_object = get_object_or_404(User, username=user)
+        return ShoppingCard.objects.filter(user=user_object,
+                                           recipe=obj).exists()
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(
-    )
+    image = Base64ImageField()
 
     class Meta:
         fields = ('id', 'author', 'ingredients', 'tags',
