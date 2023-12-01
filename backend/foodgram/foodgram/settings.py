@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'posts.apps.PostsConfig',
     'django_filters',
-    'colorfield',
+    'django_colorfield',
 ]
 
 MIDDLEWARE = [
