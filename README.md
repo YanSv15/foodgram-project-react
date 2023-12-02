@@ -14,6 +14,7 @@ GitHub
 DockerHub
 Postman
 
+
 Клонировать репозиторий и перейти в папку backend:
 1. git clone git@github.com:YanSv15/foodgram-project-react.git
 2. cd backend/foodgram
@@ -26,6 +27,7 @@ Postman
 6. python manage.py migrate
 Загрузить ингридиенты из csv-файла:
 7. python manage.py loaddata dump.json
+
 
 Заполнение .env файла:
 SECRET_KEY
