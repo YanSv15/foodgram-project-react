@@ -39,6 +39,8 @@ class User(AbstractUser):
         null=False,
         verbose_name="Пароль",
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
 
     class Meta:
         ordering = ("id",)

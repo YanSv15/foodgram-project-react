@@ -12,22 +12,21 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-SECRET_KEY = 'ij7ad)384+cgty&jx-5l&*ei-4()ultux-806!edmf_1#!cc-5'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['84.252.141.61', '127.0.0.1', 'foodgram-recipe.ddns.net']
 
-
-# Application definition
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS', default='localhost').split(' ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -146,18 +145,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'static/data'),
 ]
-
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
@@ -167,7 +166,7 @@ DJOSER = {
         'user': 'api.serializers.UserSerializer',
 
     },
-    'PASSWORD_RESET_CONFIRM_URL': 'auth/reset_password_confirm/?uid={uid}&token={token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'auth/reset_password_qconfirm/?uid={uid}&token={token}',
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
 }
 

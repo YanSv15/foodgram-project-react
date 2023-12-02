@@ -14,10 +14,12 @@ from posts import validators
 
 from users.models import User
 
+User = get_user_model()
+
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
     class Meta(DjoserUserCreateSerializer.Meta):
-        model = get_user_model()
+        model = User
         fields = ('id', 'email', 'username', 'password',
                   'first_name', 'last_name',)
 

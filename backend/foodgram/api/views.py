@@ -58,6 +58,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return serializers.RecipeReadSerializer
         return serializers.RecipeWriteSerializer
 
+    def get_queryset(self):
+        return Recipe.objects.prefetch_related(
+            'author',
+            'ingredients',
+            'tags',
+        ).all()
+
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SubscribeCreateSerializer
@@ -124,8 +131,7 @@ class FavoriteViewSet(CreateDestroyViewSet):
     serializer_class = serializers.FavoriteSerializer
 
     def get_queryset(self):
-        user = self.request.user.id
-        return Favorite.objects.filter(user=user)
+        return Favorite.objects.filter(user_id=self.request.user.id)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -151,11 +157,10 @@ class FavoriteViewSet(CreateDestroyViewSet):
     @action(methods=('delete',), detail=True)
     def delete(self, request, recipe_id):
         user = request.user
-        favorites = user.favorites.filter(recipe_id=recipe_id)
-        if not favorites.exists():
+        deleted_count, _ = user.favorites.filter(recipe_id=recipe_id).delete()
+        if deleted_count == 0:
             return Response({'errors': 'Рецепт не в избранном'},
                             status=status.HTTP_400_BAD_REQUEST)
-        favorites.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
