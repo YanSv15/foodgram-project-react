@@ -8,9 +8,10 @@ from posts.models import Ingredient
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        static_path = settings.STATICFILES_DIRS[0]  # Первый элемент, предполагается, что 'static/data/' находится в основной статической директории
+        static_path = settings.STATICFILES_DIRS[0]
         csv_file_path = os.path.join(static_path, 'data', 'ingredients.csv')
 
         try:
@@ -27,7 +28,9 @@ class Command(BaseCommand):
                     if created:
                         count_created += 1
 
-                logger.info(f'Добавлено {count_created} ингредиентови из файла {csv_file_path}')
-                print(f'Добавлено {count_created} ингредиентови из файла {csv_file_path}')
+                logger.info(f'Добавлено {count_created} ингредиентов'
+                            'из файла {csv_file_path}')
+                print(f'Добавлено {count_created} ингредиентов'
+                      'из файла {csv_file_path}')
         except FileNotFoundError as e:
             logger.error(str(e))

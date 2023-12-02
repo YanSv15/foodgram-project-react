@@ -12,7 +12,6 @@ from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
                           Favorite, ShoppingCard, Subscribe)
 from posts import validators
 
-from users.models import User
 
 User = get_user_model()
 
