@@ -91,7 +91,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('id', 'author', 'ingredients', 'tags',
+        fields = ('id', 'author', 'ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time', 'is_favorited',
                   'is_in_shopping_cart')
         model = Recipe

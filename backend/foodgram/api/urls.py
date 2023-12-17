@@ -11,7 +11,7 @@ from users.views import UserViewSet
 
 router = DefaultRouter()
 
-router.register('recipe', RecipeViewSet, basename='recipe')
+router.register('recipes', RecipeViewSet, basename='recipes')
 router.register('ingredient', IngredientsViewSet, basename='ingredient')
 router.register('tags', TagsViewSet, basename='tags')
 router.register(
