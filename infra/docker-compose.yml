@@ -10,7 +10,7 @@ services:
 
 
   backend:
-    image: svirixson/back_loc
+    image: svirixson/back_serv
     restart: always
     volumes:
       - static:/app/static/
@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: svirixson/front_loc
+    image: svirixson/front_serv
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
