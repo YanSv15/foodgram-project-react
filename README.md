@@ -38,3 +38,8 @@ POSTGRES_PASSWORD=postgres
 DB_HOST=db
 DB_PORT=5432
 
+
+https://foodgram-recipe.ddns.net/
+Данные для входа в Админ-зону:
+Почта: ss@mail.ru
+Пароль: 7364
