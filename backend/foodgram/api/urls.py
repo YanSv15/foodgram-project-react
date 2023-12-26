@@ -12,18 +12,18 @@ from users.views import UserViewSet
 router = DefaultRouter()
 
 router.register('recipes', RecipeViewSet, basename='recipes')
-router.register('ingredient', IngredientsViewSet, basename='ingredient')
+router.register('ingredients', IngredientsViewSet, basename='ingredients')
 router.register('tags', TagsViewSet, basename='tags')
 router.register(
-    r'recipe/(?P<recipe_id>\d+)/favorite', FavoriteViewSet,
+    r'recipes/(?P<recipe_id>\d+)/favorite', FavoriteViewSet,
     basename='favorite')
 router.register(
-    r'recipe/(?P<recipe_id>\d+)/shopping_cart', ShoppingCartViewSet,
+    r'recipes/(?P<recipe_id>\d+)/shopping_cart', ShoppingCartViewSet,
     basename='shoppingcart')
 router.register('users', UserViewSet, basename='users')
 
-router.register(r'recipe/(?P<user_id>\d+)/recipe',
-                SubcribeCreateDeleteViewSet, basename='recipe-create')
+router.register(r'users/(?P<user_id>\d+)/subscribe',
+                SubcribeCreateDeleteViewSet, basename='subscribe')
 
 
 urlpatterns = [

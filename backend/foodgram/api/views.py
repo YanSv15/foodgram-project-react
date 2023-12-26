@@ -7,7 +7,7 @@ from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from posts.models import (Tag, Ingredient, Recipe,
@@ -89,8 +89,10 @@ class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ShoppingCartViewSet(CreateDestroyViewSet):
+class ShoppingCartViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ShoppingCartSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
 
     def get_queryset(self):
         user = self.request.user.id
