@@ -10,6 +10,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
+from .filters import IngredientFilter, RecipesFilter
 from posts.models import (Tag, Ingredient, Recipe,
                           Favorite, ShoppingCard, Subscribe)
 from api import serializers
@@ -39,19 +40,15 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     # permission_classes = (AdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
-    pagination_class = PageNumberPagination
-    filter_backends = (filters.SearchFilter, )
-    # filterset_fields = ('name')
-    search_fields = ('^name',)
+    pagination_class = None
+    filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ('author', 'ingredients', 'name', 'cooking_time')
+    filterset_class = RecipesFilter
     # permission_classes = (AuthorOrReadOnly)
-    search_fields = ('^name', )
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
