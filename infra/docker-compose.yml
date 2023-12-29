@@ -10,7 +10,7 @@ services:
 
 
   backend:
-    image: svirixson/check_back
+    image: svirixson/bl_list
     restart: always
     volumes:
       - static:/app/static/
