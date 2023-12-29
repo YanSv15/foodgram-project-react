@@ -1,3 +1,6 @@
+
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
@@ -12,12 +15,13 @@ from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipesFilter
 from posts.models import (Tag, Ingredient, Recipe,
-                          Favorite, ShoppingCard, Subscribe)
+                          Favorite, ShoppingCard, Subscribe, IngredientsRecipe)
 from api import serializers
 # from api.permission import AdminOrReadOnly, AuthorOrReadOnly
 
 
 User = get_user_model()
+VALUE_ZERO = 0
 
 
 class CreateDestroyViewSet(mixins.CreateModelMixin,
@@ -62,6 +66,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'tags',
         ).all()
 
+    @action(
+        detail=False,
+        methods=('GET',),
+        permission_classes=(IsAuthenticated, ),
+        url_path='download_shopping_cart',
+    )
+    def download_shopping_cart(self, request):
+        """Отправка файла со списком покупок."""
+        ingredients = IngredientsRecipe.objects.filter(
+            recipe__recipe_shopping_cart__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(ingredient_amount=Sum('amount'))
+        shopping_list = ['Список покупок:\n']
+        for ingredient in ingredients:
+            name = ingredient['ingredient__name']
+            unit = ingredient['ingredient__measurement_unit']
+            amount = ingredient['ingredient_amount']
+            shopping_list.append(f'\n{name} - {amount}, {unit}')
+        response = HttpResponse(shopping_list, content_type='text/plain')
+        response['Content-Disposition'] = \
+            'attachment; filename="shopping_cart.txt"'
+        return response
+
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SubscribeCreateSerializer
@@ -77,13 +105,20 @@ class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
 
     @action(methods=('delete',), detail=True)
     def delete(self, request, author_id):
-        deleted_count, _ = Subscribe.objects.filter(user=request.user,
-                                                    author_id=author_id
-                                                    ).delete()
-        if deleted_count == 0:
-            return Response({'errors': 'Вы не были подписаны на этого автора'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            deleted_count, _ = Subscribe.objects.filter(user=request.user,
+                                                        author_id=author_id
+                                                        ).delete()
+
+            if deleted_count == 0:
+                return Response({'errors': 'Вы не подписаны на этого автора'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({'errors': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ShoppingCartViewSet(viewsets.ModelViewSet):
@@ -117,13 +152,20 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
 
     @action(methods=('delete',), detail=True)
     def delete(self, request, recipe_id):
-        user = request.user
-        shopping_cards = user.shopping_cart.filter(recipe_id=recipe_id)
-        if not shopping_cards.exists():
-            return Response({'errors': 'Рецепта нет в корзине'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        shopping_cards.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            user = request.user
+            shopping_cards = user.shopping_cart.filter(recipe_id=recipe_id)
+
+            if not shopping_cards.exists():
+                return Response({'errors': 'Рецепта нет в корзине'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            shopping_cards.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({'errors': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FavoriteViewSet(CreateDestroyViewSet):
@@ -155,12 +197,20 @@ class FavoriteViewSet(CreateDestroyViewSet):
 
     @action(methods=('delete',), detail=True)
     def delete(self, request, recipe_id):
-        user = request.user
-        deleted_count, _ = user.favorites.filter(recipe_id=recipe_id).delete()
-        if deleted_count == 0:
-            return Response({'errors': 'Рецепт не в избранном'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            user = request.user
+            deleted_count, _ = user.favorites.filter(recipe_id=recipe_id
+                                                     ).delete()
+
+            if deleted_count == 0:
+                return Response({'errors': 'Рецепт не в избранном'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({'errors': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class RegisterView(CreateAPIView):

@@ -161,6 +161,7 @@ class ShoppingCard(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='recipe_shopping_cart',
         verbose_name='Рецепт',
 
     )
