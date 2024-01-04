@@ -11,6 +11,7 @@ from users.views import UserViewSet
 
 router = DefaultRouter()
 
+router.register('users', UserViewSet, basename='users')
 router.register('recipes', RecipeViewSet, basename='recipes')
 router.register('ingredients', IngredientsViewSet, basename='ingredients')
 router.register('tags', TagsViewSet, basename='tags')
@@ -20,7 +21,7 @@ router.register(
 router.register(
     r'recipes/(?P<recipe_id>\d+)/shopping_cart', ShoppingCartViewSet,
     basename='shoppingcart')
-router.register('users', UserViewSet, basename='users')
+
 
 router.register(r'users/(?P<user_id>\d+)/subscribe',
                 SubcribeCreateDeleteViewSet, basename='subscribe')

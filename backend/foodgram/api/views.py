@@ -59,6 +59,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return serializers.RecipeReadSerializer
         return serializers.RecipeWriteSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     def get_queryset(self):
         return Recipe.objects.prefetch_related(
             'author',
@@ -93,6 +96,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SubscribeCreateSerializer
+    permission_classes = IsAuthenticated
+
+    def get_queryset(self):
+        return self.request.user.follower.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['author_id'] = self.kwargs.get('user_id')
+        return context
 
     def perform_create(self, serializer):
         user_id = self.kwargs.get('user_id')

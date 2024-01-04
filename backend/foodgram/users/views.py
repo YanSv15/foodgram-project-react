@@ -5,15 +5,18 @@ from djoser import views
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny  # IsAuthenticated
+from rest_framework.permissions import (AllowAny,
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.response import Response
 
 # from users import serializers
 # import actions
 # from djoser import utils
 # from djoser.conf import settings
-
-from api.serializers import UserCreateSerializer  # UserSerializer
+from api.serializers import (UserCreateSerializer, UserSerializer,
+                             SubscribeCreateSerializer)
+from posts.models import Subscribe
 
 
 User = get_user_model()
@@ -21,9 +24,25 @@ User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
+    permission_classes = IsAuthenticatedOrReadOnly
+    serializer_class = UserSerializer
 
-    def get_serializer_class(self):
-        pass
+    def get_permissions(self):
+        if self.action == 'me':
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()
+
+    @action(
+        detail=False,
+        permission_classes=(IsAuthenticated,))
+    def subscriptions(self, request):
+        queryset = Subscribe.objects.filter(user=request.user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscribeCreateSerializer(
+            pages,
+            many=True,
+            context={'request': request},)
+        return self.get_paginated_response(serializer.data)
 
 
 class AuthViewSet(views.UserViewSet):
