@@ -1,9 +1,4 @@
-import base64
-
 from django.shortcuts import get_object_or_404
-from django.core.files.base import ContentFile
-from rest_framework import serializers, status
-from rest_framework.response import Response
 
 from posts.models import Ingredient, IngredientsRecipe
 

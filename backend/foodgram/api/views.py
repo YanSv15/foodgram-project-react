@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
