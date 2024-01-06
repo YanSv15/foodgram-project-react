@@ -11,7 +11,7 @@ from djoser.serializers import (UserCreateSerializer
 from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
                           Favorite, ShoppingCard, Subscribe)
 from posts import validators
-
+from .utils import create_ingredients
 
 User = get_user_model()
 
@@ -108,7 +108,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
+    image = Base64ImageField(required=False)
 
     class Meta:
         fields = ('id', 'author', 'ingredients', 'tags',
@@ -123,8 +123,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
         recipe.ingredients.set(ingredients_data)
-        recipe.image.save(image_data.name, ContentFile(
-                          base64.b64decode(image_content)))
+        recipe.image.save(f'{recipe.name}.jpg',
+                          ContentFile(image_content), save=True)
+        create_ingredients(self.context['ingredients'], recipe)
         return recipe
 
     def update(self, instance, validated_data):
@@ -137,7 +138,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.tags.set(tags_data)
         instance.ingredients.set(ingredients_data)
+        ings = IngredientsRecipe.objects.filter(recipe=instance)
         instance.save()
+        for i in self.context['ingredients']:
+            amount = i.get('amount')
+            if amount is not None:
+                if i['id'] in ings.values_list('ingredient_id', flat=True):
+                    IngredientsRecipe.objects.filter(
+                        recipe=instance, ingredient_id=i['id']).update(
+                        amount=amount)
+                else:
+                    IngredientsRecipe.objects.create(
+                        recipe=instance, ingredient_id=i['id'], amount=amount)
+
         return instance
 
 

@@ -59,15 +59,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return serializers.RecipeReadSerializer
         return serializers.RecipeWriteSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
     def get_queryset(self):
-        return Recipe.objects.prefetch_related(
+        if self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
+            return Recipe.objects.all().prefetch_related(
+                'author',
+                'ingredients',
+                'tags',
+            ).distinct()
+
+        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        if is_in_shopping_cart:
+            return Recipe.objects.filter(recipe_shopping_cart__user=self.request.user)
+
+        tags = self.request.query_params.getlist('tags')
+        return Recipe.objects.filter(tags__slug__in=tags).prefetch_related(
             'author',
             'ingredients',
             'tags',
-        ).all()
+        ).distinct()
 
     @action(
         detail=False,
@@ -76,7 +85,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
     )
     def download_shopping_cart(self, request):
-        """Отправка файла со списком покупок."""
         ingredients = IngredientsRecipe.objects.filter(
             recipe__recipe_shopping_cart__user=request.user
         ).values(
@@ -92,6 +100,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = \
             'attachment; filename="shopping_cart.txt"'
         return response
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = request.data
+        data['author'] = request.user.id
+        ingredientss = data.get('ingredients')
+        if 'ingredients' in data:
+            ingredients = data.pop('ingredients')
+            ingredients_ids = [ingredient['id'] for ingredient in ingredients]
+            data['ingredients'] = ingredients_ids
+
+        serializer = self.get_serializer(instance, data=request.data, context={'ingredients': ingredientss, 'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        data['author'] = request.user.id
+        ingredientss = data.get('ingredients')
+        if 'ingredients' in data:
+            ingredients = data.pop('ingredients')
+            ingredients_ids = [ingredient['id'] for ingredient in ingredients]
+            data['ingredients'] = ingredients_ids
+
+        serializer = self.get_serializer(data=request.data, context={'ingredients': ingredientss, 'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
