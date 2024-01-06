@@ -67,7 +67,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'tags',
             ).distinct()
 
-        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        is_in_shopping_cart = (self.request.
+                               query_params.get('is_in_shopping_cart'))
         if is_in_shopping_cart:
             return Recipe.objects.filter(recipe_shopping_cart__user=self.
                                          request.user)
@@ -139,9 +140,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SubscribeListSerializer
+    queryset = Subscribe.objects.all()
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return self.request.user.follower.all()
+        # return self.request.user.follower.all()
+        return Subscribe.objects.filter(user=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

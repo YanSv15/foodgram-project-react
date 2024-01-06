@@ -10,10 +10,6 @@ from rest_framework.permissions import (AllowAny,
                                         IsAuthenticated)
 from rest_framework.response import Response
 
-# from users import serializers
-# import actions
-# from djoser import utils
-# from djoser.conf import settings
 from api.serializers import (UserCreateSerializer, UserSerializer,
                              SubscribeCreateSerializer)
 from posts.models import Subscribe
@@ -24,7 +20,7 @@ User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = IsAuthenticatedOrReadOnly
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = UserSerializer
 
     def get_permissions(self):
