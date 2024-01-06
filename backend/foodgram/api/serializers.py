@@ -1,4 +1,3 @@
-import base64
 
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
@@ -10,7 +9,6 @@ from djoser.serializers import (UserCreateSerializer
 
 from posts.models import (Tag, Ingredient, Recipe, IngredientsRecipe,
                           Favorite, ShoppingCard, Subscribe)
-from posts import validators
 from .utils import create_ingredients
 
 User = get_user_model()
