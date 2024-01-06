@@ -161,7 +161,7 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class SubscribeCreateSerializer(serializers.ModelSerializer):
+class SubscribeListSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
         source='author.email',
         read_only=True)
@@ -180,7 +180,7 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.ReadOnlyField(
-        source='author.recipe.count')
+        source='author.recipes.count')
 
     class Meta:
         model = Subscribe
@@ -188,7 +188,7 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
                   'last_name', 'is_subscribed', 'recipes', 'recipes_count',)
 
     def get_recipes(self, obj):
-        recipes = obj.author.recipe.all()
+        recipes = obj.author.recipes.all()
         return SubscribeRecipeSerializer(
             recipes,
             many=True).data
@@ -203,11 +203,11 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
         return False
 
 
-# class SubscribeCreateSerializer(serializers.ModelSerializer):
+class SubscribeCreateSerializer(serializers.ModelSerializer):
 
-    # class Meta:
-        # model = Subscribe
-        # fields = ('author', )
+    class Meta:
+        model = Subscribe
+        fields = ('author', )
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):

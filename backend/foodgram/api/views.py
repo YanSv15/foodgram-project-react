@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
@@ -69,7 +69,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
         if is_in_shopping_cart:
-            return Recipe.objects.filter(recipe_shopping_cart__user=self.request.user)
+            return Recipe.objects.filter(recipe_shopping_cart__user=self.
+                                         request.user)
 
         tags = self.request.query_params.getlist('tags')
         return Recipe.objects.filter(tags__slug__in=tags).prefetch_related(
@@ -111,7 +112,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredients_ids = [ingredient['id'] for ingredient in ingredients]
             data['ingredients'] = ingredients_ids
 
-        serializer = self.get_serializer(instance, data=request.data, context={'ingredients': ingredientss, 'request': request})
+        serializer = self.get_serializer(instance, data=request.data,
+                                         context={'ingredients': ingredientss,
+                                                  'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -125,7 +128,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredients_ids = [ingredient['id'] for ingredient in ingredients]
             data['ingredients'] = ingredients_ids
 
-        serializer = self.get_serializer(data=request.data, context={'ingredients': ingredientss, 'request': request})
+        serializer = self.get_serializer(data=request.data,
+                                         context={'ingredients': ingredientss,
+                                                  'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -133,8 +138,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.SubscribeCreateSerializer
-    permission_classes = IsAuthenticated
+    serializer_class = serializers.SubscribeListSerializer
 
     def get_queryset(self):
         return self.request.user.follower.all()
@@ -154,10 +158,10 @@ class SubcribeCreateDeleteViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
     @action(methods=('delete',), detail=True)
-    def delete(self, request, author_id):
+    def delete(self, request, user_id):
         try:
             deleted_count, _ = Subscribe.objects.filter(user=request.user,
-                                                        author_id=author_id
+                                                        author_id=user_id
                                                         ).delete()
 
             if deleted_count == 0:
