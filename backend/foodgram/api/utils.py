@@ -8,13 +8,12 @@ def create_ingredients(ingredients, recipe):
     Используется при создании/редактировании рецепта."""
     ingredient_list = []
     for ingredient in ingredients:
-        current_ingredient = get_object_or_404(Ingredient,
-                                               id=ingredient.get('id'))
+        ingredient_id = ingredient.get('id')
         amount = ingredient.get('amount')
         ingredient_list.append(
             IngredientsRecipe(
                 recipe=recipe,
-                ingredient=current_ingredient,
+                ingredient_id=ingredient_id,
                 amount=amount
             )
         )

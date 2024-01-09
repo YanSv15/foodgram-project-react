@@ -1,4 +1,4 @@
-
+from django.db import transaction
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -136,19 +136,28 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.tags.set(tags_data)
         instance.ingredients.set(ingredients_data)
-        ings = IngredientsRecipe.objects.filter(recipe=instance)
-        instance.save()
-        for i in self.context['ingredients']:
-            amount = i.get('amount')
-            if amount is not None:
-                if i['id'] in ings.values_list('ingredient_id', flat=True):
-                    IngredientsRecipe.objects.filter(
-                        recipe=instance, ingredient_id=i['id']).update(
-                        amount=amount)
-                else:
-                    IngredientsRecipe.objects.create(
-                        recipe=instance, ingredient_id=i['id'], amount=amount)
+        ingredient_recipes = IngredientsRecipe.objects.filter(recipe=instance)
+        ingredients_mapping = {ingredient['id']: ingredient for
+                               ingredient in self.context['ingredients']}
 
+        with transaction.atomic():
+            for ingredient_recipe in ingredient_recipes:
+                amount = ingredients_mapping.get(ingredient_recipe.
+                                                 ingredient_id,
+                                                 {}).get('amount')
+                if amount is not None:
+                    ingredient_recipe.amount = amount
+                    ingredient_recipe.save()
+            new_ingredient_recipes = [
+                IngredientsRecipe(
+                    recipe=instance,
+                    ingredient_id=ingredient['id'],
+                    amount=ingredient.get('amount')
+                )
+                for ingredient in self.context['ingredients']
+                if ingredient['id'] not in ingredients_mapping
+            ]
+            IngredientsRecipe.objects.bulk_create(new_ingredient_recipes)
         return instance
 
 
