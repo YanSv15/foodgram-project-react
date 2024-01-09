@@ -1,6 +1,4 @@
-from django.shortcuts import get_object_or_404
-
-from posts.models import Ingredient, IngredientsRecipe
+from posts.models import IngredientsRecipe
 
 
 def create_ingredients(ingredients, recipe):
